@@ -1,4 +1,7 @@
 #include <algorithm>
+#include <iostream>
+#include <istream>
+#include <ctype.h>
 #include "..\include\Leap.h"
 #pragma once
 using namespace Leap;
@@ -12,20 +15,8 @@ public:
 	virtual void onDisconnect(const Controller&);
 	virtual void onExit(const Controller&);
 	virtual void onFrame(const Controller&);
-
-	void myFingers::setupFingers(const FingerList& fingers,const Frame& frame);
-	bool isLengthsZero(const FingerList& fingers,const Frame& frame);
-
-	Finger GetrThumb();
-	Finger GetrPointer();
-	Finger GetrMiddle();
-	Finger GetrIndex();
-	Finger GetrPinkie();
-	Finger GetlThumb();
-	Finger GetlPointer();
-	Finger GetlMiddle();
-	Finger GetlIndex();
-	Finger GetlPinkie();
+	FingerList myFingers::setupFingers(const FingerList& fingers,const Frame& frame);
+private:
 	Finger rThumb;
 	Finger rPointer;
 	Finger rMiddle;
@@ -36,6 +27,6 @@ public:
 	Finger lMiddle;
 	Finger lIndex;
 	Finger lPinkie;
-	bool SetupComplete;
+	bool displayMode;
 };
 

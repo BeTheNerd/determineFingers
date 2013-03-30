@@ -3,84 +3,57 @@
 using namespace Leap;
 myFingers::myFingers(void)
 {
+	displayMode = false;
 }
 
 myFingers::~myFingers(void)
 {
 }
 
-Finger myFingers::GetrThumb() {
-	return rThumb;
-}
-
-Finger myFingers::GetlThumb() {
-	return rThumb;
-}
-
-Finger myFingers::GetrPointer() {
-	return rPointer;
-}
-
-Finger myFingers::GetlPointer() {
-	return lPointer;
-}
-
-Finger myFingers::GetrMiddle() {
-	return rMiddle;
-}
-
-Finger myFingers::GetlMiddle() {
-	return lMiddle;
-}
-
-Finger myFingers::GetrIndex() {
-	return rIndex;
-}
-
-Finger myFingers::GetlIndex() {
-	return lIndex;
-}  
-
-Finger myFingers::GetrPinkie() {
-	return rPinkie;
-}
-
-Finger myFingers::GetlPinkie() {
-	return lPinkie;
-}
-
-
-void myFingers::setupFingers(const FingerList& fingers, const Frame& frame) {
-	float vArray[10];
-	int f  = 0;
-	for(f; f < 10;f++)
+FingerList myFingers::setupFingers(const FingerList& fingers, const Frame& frame) {
+	FingerList currentFingers;
+	float widthArray[10];
+	float lengthArray[10];
+	int wPos = 0;
+	int count = 10;
+	for(int i = 0;i < 10;i++)
 	{
-		vArray[f] = frame.fingers()[f].tipPosition().x;
+		widthArray[i]  = fingers[i].width();
+		lengthArray[i] = fingers[i].length();
+		if(widthArray[wPos] = fingers[i].width())
+		{
+			if(wPos == 0) {lPinkie  = fingers[i];currentFingers[0] = lPinkie;}
+			if(wPos == 1) {lIndex   = fingers[i];currentFingers[1] = lIndex;}
+			if(wPos == 2) {lMiddle  = fingers[i];currentFingers[2] = lMiddle;}
+			if(wPos == 3) {lPointer = fingers[i];currentFingers[3] = lPointer;}
+			if(wPos == 4) {lThumb   = fingers[i];currentFingers[4] = lThumb;}
+			if(wPos == 5) {rThumb   = fingers[i];currentFingers[5] = rThumb;}
+			if(wPos == 6) {rPointer = fingers[i];currentFingers[6] = rPointer;}
+			if(wPos == 7) {rMiddle  = fingers[i];currentFingers[7] = rMiddle;}
+			if(wPos == 8) {rIndex   = fingers[i];currentFingers[8] = rIndex;}
+			if(wPos == 9) {rPinkie  = fingers[i];currentFingers[9] = rPinkie;}
+		}
+		wPos++;
 	}
-	std::sort(std::begin(vArray), std::end(vArray));
-	f = 0;
-	for(f; f < 10; f++)
-	{
-		if(vArray[0] ==frame.fingers()[f].tipPosition().x){lPinkie = frame.fingers()[f];}
-		if(vArray[1] ==frame.fingers()[f].tipPosition().x){lIndex = frame.fingers()[f];}
-		if(vArray[2] ==frame.fingers()[f].tipPosition().x){lMiddle = frame.fingers()[f];}
-		if(vArray[3] ==frame.fingers()[f].tipPosition().x){lPointer = frame.fingers()[f];}
-		if(vArray[4] ==frame.fingers()[f].tipPosition().x){lThumb = frame.fingers()[f];}
-		if(vArray[5] ==frame.fingers()[f].tipPosition().x){rThumb = frame.fingers()[f];}
-		if(vArray[6] ==frame.fingers()[f].tipPosition().x){rPointer = frame.fingers()[f];}
-		if(vArray[7] ==frame.fingers()[f].tipPosition().x){rMiddle = frame.fingers()[f];}
-		if(vArray[8] ==frame.fingers()[f].tipPosition().x){rIndex = frame.fingers()[f];}
-		if(vArray[9] ==frame.fingers()[f].tipPosition().x){rPinkie = frame.fingers()[f];}
-	}
+	return currentFingers;
 }
 
 void myFingers::onInit(const Controller& controller) {
-
 	std::cout << "Initialized" << std::endl;
 }
 
 void myFingers::onConnect(const Controller& controller) {
 	std::cout << "Connected" << std::endl;
+	std::cout << "Config Mode Initiated: " << std::endl;
+	std::cout << "Display Mode?  y/Y or n/N: ";
+	char display;
+	std::cin >> display;
+	if( display == 'y' || display == 'Y' ){
+		displayMode = true;
+	}
+	if( display == 'n' || display == 'N' ){
+		displayMode = false;
+	}
 }
 
 void myFingers::onDisconnect(const Controller& controller) {
@@ -91,37 +64,20 @@ void myFingers::onExit(const Controller& controller) {
 	std::cout << "Exited" << std::endl;
 }
 
-bool myFingers::isLengthsZero(const FingerList& fingers,const Frame& frame) {
-	bool check = false;
-	int f = 0;
-	for(f; f < 9; f++)
-	{
-		if(frame.fingers()[f].length() ==0)
-		{
-			check = true;
-		}
-	}
-	return check;
-}
-
 void myFingers::onFrame(const Controller& controller) {
+	FingerList fingers;
 	const Frame frame = controller.frame();
 	const HandList hands = frame.hands();
 	if (!frame.hands().empty()) 
 	{
-		const FingerList fingers;
-		for(int f=0; f < 9; f++)
+		if( frame.fingers().count() == 10)
 		{
-			frame.fingers()[f] = frame.fingers()[f];
-		}
-
-		setupFingers(fingers,frame);
-
-		if(!isLengthsZero(fingers,frame))
-		{
-			std::cout << "Left Hand Fingers  :  " << lThumb.length() <<  " " << lPointer.length() << " " << lMiddle.length() << " " << lIndex.length() << " " <<  lPinkie.length() <<  std::endl;
-			std::cout << "Right Hand Fingers :  " << rThumb.length() << " " << rPointer.length() << " " <<  rMiddle.length() << " " << rIndex.length() << " " <<  rPinkie.length() <<  std::endl;
-			SetupComplete = true;
+			fingers = setupFingers(frame.fingers(),frame);
+			if(displayMode)
+			{
+				std::cout << "Left Hand Fingers  :  " << lThumb.length() <<  " " << lPointer.length() << " " << lMiddle.length() << " " << lIndex.length() << " " <<  lPinkie.length() <<  std::endl;
+				std::cout << "Right Hand Fingers :  " << rThumb.length() << " " << rPointer.length() << " " <<  rMiddle.length() << " " << rIndex.length() << " " <<  rPinkie.length() <<  std::endl;
+			}
 		}
 	}
 }		
