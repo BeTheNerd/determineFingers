@@ -11,31 +11,106 @@ myFingers::~myFingers(void)
 }
 
 FingerList myFingers::setupFingers(const FingerList& fingers, const Frame& frame) {
-	FingerList currentFingers;
-	float widthArray[10];
-	float lengthArray[10];
-	int wPos = 0;
-	int count = 10;
-	for(int i = 0;i < 10;i++)
+	FingerList organizedFingers;
+	HandList organizedHands;
+	Hand lHand;
+	Hand rHand;
+	// Grab LeftMost Finger and set that as lPinkie
+	lPinkie = currentFingers.leftmost();
+	// Grab RightMost Finger and set that as rPinkie
+	rPinkie = currentFingers.rightmost();
+	// This is the hand associated to lPinkie
+	lHand = lPinkie.hand();
+	// This is the hand associated to RPinkie
+	rHand = rPinkie.hand();
+	// Now get the fingers associated with each hand
+	FingerList lHandFingers = lHand.fingers();
+	FingerList rHandFingers = rHand.fingers();
+	// Now get the Thumb associated with left hand
+	lThumb = lHandFingers.rightmost();
+	// Now get the Thumb associated with the right hand
+	rThumb = rHandFingers.leftmost();
+	// Now get the Middle finger Associted with Left Hand
+	lMiddle = lHandFingers.frontmost();
+	// Now get the Middle Finger associated with Right Hand
+	rMiddle = rHandFingers.frontmost();
+	// Now get List of remaining left hand fingers
+	FingerList remainingLeftHandFingers;
+	int i = 0;
+	for(i;i < lHandFingers.count() ; i++)
 	{
-		widthArray[i]  = fingers[i].width();
-		lengthArray[i] = fingers[i].length();
-		if(widthArray[wPos] = fingers[i].width())
+		if( lHandFingers[i] != lPinkie && 
+		    lHandFingers[i] != lMiddle &&
+		    lHandFingers[i] != lThumb  )
 		{
-			if(wPos == 0) {lPinkie  = fingers[i];currentFingers[0] = lPinkie;}
-			if(wPos == 1) {lIndex   = fingers[i];currentFingers[1] = lIndex;}
-			if(wPos == 2) {lMiddle  = fingers[i];currentFingers[2] = lMiddle;}
-			if(wPos == 3) {lPointer = fingers[i];currentFingers[3] = lPointer;}
-			if(wPos == 4) {lThumb   = fingers[i];currentFingers[4] = lThumb;}
-			if(wPos == 5) {rThumb   = fingers[i];currentFingers[5] = rThumb;}
-			if(wPos == 6) {rPointer = fingers[i];currentFingers[6] = rPointer;}
-			if(wPos == 7) {rMiddle  = fingers[i];currentFingers[7] = rMiddle;}
-			if(wPos == 8) {rIndex   = fingers[i];currentFingers[8] = rIndex;}
-			if(wPos == 9) {rPinkie  = fingers[i];currentFingers[9] = rPinkie;}
+		if(remainingLeftHandFingers.count() == 0)
+		{
+			remainingLeftHandFingers[0] = lHandFingers[i];
 		}
-		wPos++;
+		else
+		{
+			remainingLeftHandFingers[0] = lHandFingers[i];
+		}
 	}
-	return currentFingers;
+	}
+	// Now check if one is greater then the other
+	if(remainingLeftHandFingers[0].tipPosition().x > remainingLeftHandFingers[1].tipPosition().x)
+	{
+		lPointer = remainingLeftHandFingers[0];
+		lIndex = remainingLeftHandFingers[1];
+	}
+	else
+	{
+		lIndex = remainingLeftHandFingers[0];
+		lPointer = remainingLeftHandFingers[1];
+	}
+	// Now get List of remaining right hand fingers
+	FingerList remainingRightHandFingers;
+	i = 0;
+	for(i;i < rHandFingers.count() ; i++)
+	{
+	if( rHandFingers[i] != lPinkie && 
+   		rHandFingers[i] != lMiddle &&
+		rHandFingers[i] != lThumb  )
+	{
+	if(remainingRightHandFingers.count() == 0)
+	{
+		remainingRightHandFingers[0] = rHandFingers[i];
+	}
+	else
+	{
+		remainingRightHandFingers[0] = rHandFingers[i];
+	}
+	}
+	}
+	// Now check if one is greater then the other
+	if(remainingRightHandFingers[0].tipPosition().x < remainingRightHandFingers[1].tipPosition().x)
+	{
+	rPointer = remainingRightHandFingers[0];
+	rIndex = remainingRightHandFingers[1];
+	}
+	else
+	{
+		rIndex = remainingRightHandFingers[0];
+		rPointer = remainingRightHandFingers[1];
+	}
+	// Create Lists of organized Objects and add them to the hands and overright
+	// the correct Fingers. 
+	organizedFingers[0] = lPinkie;
+	organizedFingers[1] = lIndex;
+	organizedFingers[2] = lMiddle;
+	organizedFingers[3] = lPointer;
+	organizedFingers[4] = lThumb;
+	organizedFingers[5] = rThumb;
+	organizedFingers[6] = rPointer;
+	organizedFingers[7] = rMiddle;
+	organizedFingers[8] = rIndex;
+	organizedFingers[9] = rPinkie;
+	organizedHands[0] = lHand;
+	organizedHands[1] = rHand;
+				
+				
+				return organizedFingers;
 }
 
 void myFingers::onInit(const Controller& controller) {
